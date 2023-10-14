@@ -49,12 +49,13 @@ message NftWithdrawal {
 contract Task4 with Deployable {
   seed: Int as uint128;
 
-  time: Int? as uint32;
+  time: Int as uint32;
   owner: Address?;
   nft: Address?;
   
   init(seed: Int) {
     self.seed = seed; // needed to deploy multiple smart contracts copies from one admin address
+    self.time = 0;
   }
 
   receive(msg: OwnershipAssigned) {
@@ -71,7 +72,7 @@ contract Task4 with Deployable {
     } else {
         self.owner = msg.prevOwner;
         self.nft = sender();
-        self.time = msg.forwardPayload.loadUint(32);
+        self.time = now() + msg.forwardPayload.loadUint(32);
     }
   }
 
