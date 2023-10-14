@@ -1,3 +1,4 @@
+import "@stdlib/deploy";
 
 /*
   TASK 1 - Counter 
