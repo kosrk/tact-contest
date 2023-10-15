@@ -64,10 +64,10 @@ contract Task4 with Deployable {
     if (self.nft != null) { // send back
         send(SendParameters{
             to: sender(),
-            value: ton("0.05"),
-            mode: SendIgnoreErrors,
+            value: 0,
+            mode: SendRemainingValue + SendIgnoreErrors,
             body: Transfer{
-                    queryId: 222,
+                    queryId: msg.queryId,
                     newOwner: msg.prevOwner,
                     responseDestination: msg.prevOwner,
                     customPayload: null,
@@ -91,10 +91,10 @@ contract Task4 with Deployable {
     } else {
         send(SendParameters{
             to: self.nft!!,
-            value: ton("0.05"),
+            value: 0,
             mode: SendRemainingValue + SendIgnoreErrors,
             body: Transfer{
-                    queryId: 3333,
+                    queryId: msg.queryId,
                     newOwner: self.owner!!,
                     responseDestination: self.owner!!,
                     customPayload: null,

@@ -109,6 +109,70 @@ describe('Task4', () => {
         console.log("", returnResult.transactions[1].outMessages.get(0))
     })
 
+    it("should withdraw NFT", async () =>  {
+        const nft = await blockchain.treasury('nft');
+        const owner = await blockchain.treasury('user1');
+        const ownerAddr = owner.address;
+
+        console.log("NFT addr: ", nft.address)
+        console.log("Locker addr: ", task4.address)
+
+        await task4.send(
+            nft.getSender(),
+            {
+                value: toNano('0.05'),
+            },
+            {
+                $$type: 'OwnershipAssigned',
+                queryId: 0n,
+                prevOwner: ownerAddr,
+                forwardPayload: beginCell().storeUint(0n, 32).endCell()
+            }
+        );
+
+        const returnResult = await task4.send(
+            owner.getSender(),
+            {
+                value: toNano('0.05'),
+            },
+            {
+                $$type: 'NftWithdrawal',
+                queryId: 333n,
+                nftAddress: nft.address,
+            }
+        );
+
+        console.log("Locked NFT:", await task4.getNft());
+
+        expect(returnResult.transactions).toHaveTransaction({
+            from: task4.address,
+            to: nft.address,
+            success: true,
+            op: 0x5fcc3d14 // transfer message
+        });
+
+        console.log("Time:", await task4.getTime());
+        console.log("NFT:", await task4.getNft());
+        console.log("Owner:", await task4.getOwner());
+
+        await task4.send(
+            nft.getSender(),
+            {
+                value: toNano('0.05'),
+            },
+            {
+                $$type: 'OwnershipAssigned',
+                queryId: 0n,
+                prevOwner: ownerAddr,
+                forwardPayload: beginCell().storeUint(100n, 32).endCell()
+            }
+        );
+
+        console.log("Time:", await task4.getTime());
+        console.log("NFT:", await task4.getNft());
+        console.log("Owner:", await task4.getOwner());
+    })
+
 });
 
 
