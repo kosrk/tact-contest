@@ -90,8 +90,8 @@ contract Task4 with Deployable {
         self.reply("NFT is still locked".asComment());
     } else {
         send(SendParameters{
-            to: self.nft!!,
-            value: 0,
+            to: msg.nftAddress,
+            value: ton("0.05"),
             mode: SendRemainingValue + SendIgnoreErrors,
             body: Transfer{
                     queryId: msg.queryId,
