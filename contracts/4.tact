@@ -62,7 +62,7 @@ contract Task4 with Deployable {
     if (self.nft != null) {
         // send back
         self.reply(Transfer{
-                    queryId: 0,
+                    queryId: 1,
                     newOwner: msg.prevOwner,
                     responseDestination: msg.prevOwner,
                     customPayload: null,
@@ -85,10 +85,10 @@ contract Task4 with Deployable {
     } else {
         send(SendParameters{
             to: self.nft!!,
-            value: 0,
+            value: ton("0.05"),
             mode: SendRemainingValue + SendIgnoreErrors,
             body: Transfer{
-                    queryId: 0,
+                    queryId: 2,
                     newOwner: self.owner!!,
                     responseDestination: self.owner!!,
                     customPayload: null,
@@ -96,6 +96,9 @@ contract Task4 with Deployable {
                     forwardPayload: emptyCell().asSlice()
                     }.toCell()
         });
+        self.owner = null;
+        self.nft = null;
+        self.time = 0;
     }
   }
 
