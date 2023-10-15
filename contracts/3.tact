@@ -103,7 +103,7 @@ contract Task3 with Deployable {
                             responseDestination: msg.from,
                             customPayload: null,
                             forwardTonAmount: 0,
-                            forwardPayload: emptyCell().asSlice()
+                            forwardPayload: msg.forwardPayload
                     }.toCell()
                 });
             } else { // not enough JettonB for swap. return JettonA to sender
@@ -157,7 +157,7 @@ contract Task3 with Deployable {
                             responseDestination: msg.from,
                             customPayload: null,
                             forwardTonAmount: 0,
-                            forwardPayload: emptyCell().asSlice()
+                            forwardPayload: msg.forwardPayload
                     }.toCell()
                 });
             } else { // not enough JettonA for swap. return JettonB to sender
