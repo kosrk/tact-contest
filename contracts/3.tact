@@ -89,8 +89,8 @@ contract Task3 with Deployable {
                     }.toCell()
                 });
             }
-            //let qtyB: Int = (self.bAmount * self.decimal / self.aAmount) * msg.amount / self.decimal;
-            let qtyB: Int = (self.aAmount * self.decimal / self.bAmount) * msg.amount / self.decimal;
+            let qtyB: Int = (self.bAmount * self.decimal / self.aAmount) * msg.amount / self.decimal;
+            //let qtyB: Int = (self.aAmount * self.decimal / self.bAmount) * msg.amount / self.decimal;
             if (self.bAmount >= qtyB) { // enough JettonB for swap. send B
                 send(SendParameters{
                     to: self.jettonAddressB, // to our JettonB wallet
@@ -143,8 +143,8 @@ contract Task3 with Deployable {
                     }.toCell()
                 });
             }
-            //let qtyA: Int = (self.aAmount * self.decimal / self.bAmount) * msg.amount / self.decimal;
-            let qtyA: Int = (self.bAmount * self.decimal / self.aAmount) * msg.amount / self.decimal;
+            let qtyA: Int = (self.aAmount * self.decimal / self.bAmount) * msg.amount / self.decimal;
+            //let qtyA: Int = (self.bAmount * self.decimal / self.aAmount) * msg.amount / self.decimal;
             if (self.aAmount >= qtyA) { // enough JettonA for swap. send A
                 send(SendParameters{
                     to: self.jettonAddressA, // to our JettonA wallet
