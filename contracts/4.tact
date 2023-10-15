@@ -56,19 +56,25 @@ contract Task4 with Deployable {
   init(seed: Int) {
     self.seed = seed; // needed to deploy multiple smart contracts copies from one admin address
     self.time = 0;
+    self.owner = null;
+    self.nft = null;
   }
 
   receive(msg: OwnershipAssigned) {
-    if (self.nft != null) {
-        // send back
-        self.reply(Transfer{
-                    queryId: 1,
+    if (self.nft != null) { // send back
+        send(SendParameters{
+            to: sender(),
+            value: ton("0.05"),
+            mode: SendIgnoreErrors,
+            body: Transfer{
+                    queryId: 222,
                     newOwner: msg.prevOwner,
                     responseDestination: msg.prevOwner,
                     customPayload: null,
                     forwardAmount: 0,
-                    forwardPayload: emptyCell().asSlice()
-                    }.toCell());
+                    forwardPayload: msg.forwardPayload
+            }.toCell()
+        });
     } else {
         self.owner = msg.prevOwner;
         self.nft = sender();
@@ -86,7 +92,7 @@ contract Task4 with Deployable {
         send(SendParameters{
             to: self.nft!!,
             value: ton("0.05"),
-            mode: SendRemainingValue + SendIgnoreErrors,
+            mode: SendRemainingBalance + SendIgnoreErrors,
             body: Transfer{
                     queryId: 2,
                     newOwner: self.owner!!,
@@ -103,7 +109,7 @@ contract Task4 with Deployable {
   }
 
   get fun time(): Int {
-    let remain: Int = now() - self.time;
+    let remain: Int =  self.time - now();
     if (remain < 0) {
         remain = 0;
     }
