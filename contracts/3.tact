@@ -72,6 +72,8 @@ contract Task3 with Deployable {
             self.aAmount = self.aAmount + msg.amount;
         } else if (sender() == self.jettonAddressB) { // JettonB
             self.bAmount = self.bAmount + msg.amount;
+        } else {
+            throw(123);
         }
     } else {
         if (sender() == self.jettonAddressA) { // receive JettonA to swap to JettonB
@@ -146,9 +148,11 @@ contract Task3 with Deployable {
 
   get fun price(jetton: Address): Int {
     if (jetton == self.jettonAddressA) {
-        return self.aAmount * self.decimal / self.bAmount;
+        if (self.bAmount == 0) {return 0;}
+        return self.aAmount / (self.bAmount / self.decimal);
     }
-    return self.bAmount * self.decimal / self.aAmount;
+    if (self.aAmount == 0) {return 0;}
+    return self.bAmount / (self.aAmount / self.decimal);
   }
 
   get fun balance(jetton: Address): Int {
