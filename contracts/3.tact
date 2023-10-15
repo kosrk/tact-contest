@@ -67,22 +67,34 @@ contract Task3 with Deployable {
   }
 
   receive(msg: TokenNotification) {
-    if (msg.from == self.owner) { // Jettons from admin
-        if (sender() == self.jettonAddressA) { // JettonA
-            self.aAmount = self.aAmount + msg.amount;
-        } else if (sender() == self.jettonAddressB) { // JettonB
-            self.bAmount = self.bAmount + msg.amount;
+    require(sender() == self.jettonAddressA || sender() == self.jettonAddressB, "Invalid Jetton");
+
+    if (sender() == self.jettonAddressA) { // receive JettonA
+        if (msg.from == self.owner) { // Jettons from admin
+            self.aAmount = self.aAmount + msg.amount / self.decimal;
         } else {
-            throw(123);
-        }
-    } else {
-        if (sender() == self.jettonAddressA) { // receive JettonA to swap to JettonB
-            let qtyB: Int = (self.bAmount * msg.amount) / self.aAmount;
+            if (self.aAmount == 0 || self.bAmount == 0) { // empty pool. return JettonA to sender
+                send(SendParameters{
+                    to: self.jettonAddressA, // to our JettonA wallet
+                    value: 0,
+                    mode: SendRemainingValue + SendIgnoreErrors,
+                    body: TokenTransfer{
+                            queryId: msg.queryId,
+                            amount: msg.amount,
+                            destination: msg.from,
+                            responseDestination: msg.from,
+                            customPayload: null,
+                            forwardTonAmount: 0,
+                            forwardPayload: emptyCell().asSlice()
+                    }.toCell()
+                });
+            }
+            let qtyB: Int = (self.bAmount * self.decimal / self.aAmount) * (msg.amount / self.decimal) / self.decimal;
             if (self.bAmount >= qtyB) { // enough JettonB for swap. send B
                 send(SendParameters{
                     to: self.jettonAddressB, // to our JettonB wallet
-                    value: ton("0.05"),
-                    mode: SendIgnoreErrors,
+                    value: 0,
+                    mode: SendRemainingValue + SendIgnoreErrors,
                     body: TokenTransfer{
                             queryId: msg.queryId,
                             amount: qtyB,
@@ -96,8 +108,8 @@ contract Task3 with Deployable {
             } else { // not enough JettonB for swap. return JettonA to sender
                 send(SendParameters{
                     to: self.jettonAddressA, // to our JettonA wallet
-                    value: ton("0.05"),
-                    mode: SendIgnoreErrors,
+                    value: 0,
+                    mode: SendRemainingValue + SendIgnoreErrors,
                     body: TokenTransfer{
                             queryId: msg.queryId,
                             amount: msg.amount,
@@ -109,13 +121,33 @@ contract Task3 with Deployable {
                     }.toCell()
                 });
             }
-        } else if (sender() == self.jettonAddressB) {  // receive JettonB to swap to JettonA
-            let qtyA: Int = (self.aAmount * msg.amount) / self.bAmount;
+        }
+    } else {                               // receive JettonB
+        if (msg.from == self.owner) { // Jettons from admin
+            self.bAmount = self.bAmount + msg.amount / self.decimal;
+        } else {
+            if (self.aAmount == 0 || self.bAmount == 0) { // empty pool. return JettonB to sender
+                send(SendParameters{
+                    to: self.jettonAddressB, // to our JettonB wallet
+                    value: 0,
+                    mode: SendRemainingValue + SendIgnoreErrors,
+                    body: TokenTransfer{
+                            queryId: msg.queryId,
+                            amount: msg.amount,
+                            destination: msg.from,
+                            responseDestination: msg.from,
+                            customPayload: null,
+                            forwardTonAmount: 0,
+                            forwardPayload: emptyCell().asSlice()
+                    }.toCell()
+                });
+            }
+            let qtyA: Int = (self.aAmount * self.decimal / self.bAmount) * (msg.amount / self.decimal) / self.decimal;
             if (self.aAmount >= qtyA) { // enough JettonA for swap. send A
                 send(SendParameters{
                     to: self.jettonAddressA, // to our JettonA wallet
-                    value: ton("0.05"),
-                    mode: SendIgnoreErrors,
+                    value: 0,
+                    mode: SendRemainingValue + SendIgnoreErrors,
                     body: TokenTransfer{
                             queryId: msg.queryId,
                             amount: qtyA,
@@ -129,8 +161,8 @@ contract Task3 with Deployable {
             } else { // not enough JettonA for swap. return JettonB to sender
                 send(SendParameters{
                     to: self.jettonAddressB, // to our JettonB wallet
-                    value: ton("0.05"),
-                    mode: SendIgnoreErrors,
+                    value: 0,
+                    mode: SendRemainingValue + SendIgnoreErrors,
                     body: TokenTransfer{
                             queryId: msg.queryId,
                             amount: msg.amount,
@@ -149,16 +181,16 @@ contract Task3 with Deployable {
   get fun price(jetton: Address): Int {
     if (jetton == self.jettonAddressA) {
         if (self.bAmount == 0) {return 0;}
-        return self.aAmount / (self.bAmount / self.decimal);
+        return self.aAmount * self.decimal / self.bAmount;
     }
     if (self.aAmount == 0) {return 0;}
-    return self.bAmount / (self.aAmount / self.decimal);
+    return self.bAmount * self.decimal / self.aAmount;
   }
 
   get fun balance(jetton: Address): Int {
     if (jetton == self.jettonAddressA) {
-        return self.aAmount / self.decimal;
+        return self.aAmount;
     }
-    return self.bAmount / self.decimal;
+    return self.bAmount;
   }
 }

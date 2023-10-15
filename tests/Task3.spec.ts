@@ -1,6 +1,7 @@
 import { Blockchain, SandboxContract } from '@ton-community/sandbox';
-import { toNano } from 'ton-core';
+import {Address, beginCell, toNano} from 'ton-core';
 import { Task3 } from '../wrappers/Task3';
+import '@ton-community/test-utils';
 
 describe('Task3', () => {
     let blockchain: Blockchain;
@@ -8,7 +9,12 @@ describe('Task3', () => {
 
     beforeEach(async () => {
         blockchain = await Blockchain.create();
-        task3 = blockchain.openContract(await Task3.fromInit());
+
+        const admin = await blockchain.treasury('user1');
+        const walletA = await blockchain.treasury('JettonWalletA');
+        const walletB = await blockchain.treasury('JettonWalletB');
+
+        task3 = blockchain.openContract(await Task3.fromInit(admin.address, walletA.address, walletB.address));
         const deployer = await blockchain.treasury('deployer');
         const deployResult = await task3.send(
             deployer.getSender(),
@@ -28,8 +34,56 @@ describe('Task3', () => {
         });
     });
 
-    it('test', async () => {
+    it("should get price and amount for empty pool", async () => {
+        const walletA = await blockchain.treasury('JettonWalletA');
+        const walletB = await blockchain.treasury('JettonWalletB');
+
+        expect(await task3.getPrice(walletA.address)).toEqual(0n);
+        expect(await task3.getPrice(walletB.address)).toEqual(0n);
+        expect(await task3.getBalance(walletA.address)).toEqual(0n);
+        expect(await task3.getBalance(walletB.address)).toEqual(0n);
     });
+
+    it("should get price and amount for not empty pool", async () => {
+        const admin = await blockchain.treasury('user1');
+        const walletA = await blockchain.treasury('JettonWalletA');
+        const walletB = await blockchain.treasury('JettonWalletB');
+
+        await task3.send(
+            walletA.getSender(),
+            {
+                value: toNano('0.05'),
+            },
+            {
+                $$type: 'TokenNotification',
+                queryId: 111n,
+                amount: 10_000_000_000n,
+                from: admin.address,
+                forwardPayload: beginCell().endCell()
+            }
+        );
+
+        await task3.send(
+            walletB.getSender(),
+            {
+                value: toNano('0.05'),
+            },
+            {
+                $$type: 'TokenNotification',
+                queryId: 222n,
+                amount: 2_000_000_000n,
+                from: admin.address,
+                forwardPayload: beginCell().endCell()
+            }
+        );
+
+        expect(await task3.getPrice(walletA.address)).toEqual(5_000_000_000n);
+        expect(await task3.getPrice(walletB.address)).toEqual(200_000_000n);
+        expect(await task3.getBalance(walletA.address)).toEqual(10n);
+        expect(await task3.getBalance(walletB.address)).toEqual(2n);
+
+    });
+
 });
 
 
