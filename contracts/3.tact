@@ -71,7 +71,7 @@ contract Task3 with Deployable {
 
     if (sender() == self.jettonAddressA) { // receive JettonA
         if (msg.from == self.owner) { // Jettons from admin
-            self.aAmount = self.aAmount + msg.amount / self.decimal;
+            self.aAmount = self.aAmount + msg.amount;
         } else {
             if (self.aAmount == 0 || self.bAmount == 0) { // empty pool. return JettonA to sender
                 send(SendParameters{
@@ -124,7 +124,7 @@ contract Task3 with Deployable {
         }
     } else {                               // receive JettonB
         if (msg.from == self.owner) { // Jettons from admin
-            self.bAmount = self.bAmount + msg.amount / self.decimal;
+            self.bAmount = self.bAmount + msg.amount;
         } else {
             if (self.aAmount == 0 || self.bAmount == 0) { // empty pool. return JettonB to sender
                 send(SendParameters{
