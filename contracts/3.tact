@@ -106,6 +106,8 @@ contract Task3 with Deployable {
                             forwardPayload: msg.forwardPayload
                     }.toCell()
                 });
+                self.bAmount = self.bAmount - qtyB;
+                self.aAmount = self.aAmount + msg.amount;
             } else { // not enough JettonB for swap. return JettonA to sender
                 send(SendParameters{
                     to: self.jettonAddressA, // to our JettonA wallet
@@ -160,6 +162,8 @@ contract Task3 with Deployable {
                             forwardPayload: msg.forwardPayload
                     }.toCell()
                 });
+                self.aAmount = self.aAmount - qtyA;
+                self.bAmount = self.bAmount + msg.amount;
             } else { // not enough JettonA for swap. return JettonB to sender
                 send(SendParameters{
                     to: self.jettonAddressB, // to our JettonB wallet
