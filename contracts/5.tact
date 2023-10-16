@@ -67,13 +67,27 @@ message(0x5fcc3d14) Transfer {
 contract Task5 with Deployable {
   seed: Int as uint128;
   owner: Address;
+  nfts: map<Int as uint16, Address>;
+  qty: Int as uint16;
+  profit: Int;
   
   init(seed: Int, owner: Address) {
     self.owner = owner;
     self.seed = seed; // needed to deploy multiple smart contracts copies from one admin address
+    self.profit = 0;
+    self.qty = 0;
   }
 
   receive(msg: OwnershipAssigned) {
+    if (msg.prevOwner == self.owner) { // add NFT by admin
+        // TODO: check for NFT in array?
+        self.nfts.set(self.qty, sender());
+        self.qty = self.qty + 1;
+    } else {
+        if (msg.value != 2_100_000_000) {
+            // TODO: return NFT back but check for fees
+        }
+    }
   }
 
   receive(msg: AdminWithdrawalProfit) {
@@ -82,9 +96,11 @@ contract Task5 with Deployable {
   receive(msg: AdminWithdrawalAllNFTs) {
   }
 
-  get fun profit(): Int { 
+  get fun profit(): Int {
+    return self.profit;
   }
   
-  get fun nfts(): map<Int as uint16, Address> { 
+  get fun nfts(): map<Int as uint16, Address> {
+    return self.nfts;
   }
 }
