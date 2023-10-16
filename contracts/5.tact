@@ -103,12 +103,17 @@ contract Task5 with Deployable {
         return;
     }
 
-    self.nfts.set(self.qty, sender()); // write new nft to the end of array
-
     let randomIndex: Int = random(0, self.qty); // random index include new nft at the end
 
+    let nft: Address = sender(); // new NFT as default for swap
+
+    if (randomIndex != self.qty) { // last number for new NFT
+        nft = self.nfts.get(randomIndex)!!;
+        self.nfts.set(randomIndex, sender()); // replace old nft with new
+    } // not add to dict if swap new to new
+
     send(SendParameters{
-        to: self.nfts.get(randomIndex)!!,
+        to: nft,
         value: context().value - 2000000000,
         mode: SendIgnoreErrors,
         body: Transfer{
@@ -120,8 +125,6 @@ contract Task5 with Deployable {
                 forwardPayload: emptySlice()
         }.toCell()
     });
-
-    self.nfts.set(randomIndex, sender()); // replace old nft with new, but not increase qty to exclude new NFT from end
 
   }
 
@@ -142,7 +145,7 @@ contract Task5 with Deployable {
     require(sender() == self.owner, "Invalid sender");
     while (self.qty > 0) {
         send(SendParameters{
-            to: sender(),
+            to: self.nfts.get(self.qty - 1)!!,
             value: 80000000,
             mode: SendIgnoreErrors,
             body: Transfer{
@@ -156,10 +159,13 @@ contract Task5 with Deployable {
         });
         self.qty = self.qty - 1;
     }
+    self.nfts = emptyMap();
   }
 
   get fun profit(): Int {
-    return myBalance() - 100000000;
+    let profit: Int = myBalance() - 100000000;
+    if (profit > 0) {return profit;}
+    return 0;
   }
   
   get fun nfts(): map<Int as uint16, Address> {
