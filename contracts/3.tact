@@ -79,13 +79,13 @@ contract Task3 with Deployable {
                     value: 0,
                     mode: SendRemainingValue + SendIgnoreErrors,
                     body: TokenTransfer{
-                            queryId: msg.queryId,
+                            queryId: 0,
                             amount: msg.amount,
                             destination: msg.from,
-                            responseDestination: msg.from,
+                            responseDestination: myAddress(),
                             customPayload: null,
-                            forwardTonAmount: 0,
-                            forwardPayload: emptyCell().asSlice()
+                            forwardTonAmount: ton("0.01"),
+                            forwardPayload: emptySlice()
                     }.toCell()
                 });
             }
@@ -97,13 +97,13 @@ contract Task3 with Deployable {
                     value: 0,
                     mode: SendRemainingValue + SendIgnoreErrors,
                     body: TokenTransfer{
-                            queryId: msg.queryId,
+                            queryId: 0,
                             amount: qtyB,
                             destination: msg.from,
-                            responseDestination: msg.from,
+                            responseDestination: myAddress(),
                             customPayload: null,
-                            forwardTonAmount: 0,
-                            forwardPayload: msg.forwardPayload
+                            forwardTonAmount: ton("0.01"),
+                            forwardPayload: emptySlice()
                     }.toCell()
                 });
                 self.bAmount = self.bAmount - qtyB;
@@ -114,13 +114,13 @@ contract Task3 with Deployable {
                     value: 0,
                     mode: SendRemainingValue + SendIgnoreErrors,
                     body: TokenTransfer{
-                            queryId: msg.queryId,
+                            queryId: 0,
                             amount: msg.amount,
                             destination: msg.from,
-                            responseDestination: msg.from,
+                            responseDestination: myAddress(),
                             customPayload: null,
                             forwardTonAmount: ton("0.01"),
-                            forwardPayload: emptyCell().asSlice()
+                            forwardPayload: emptySlice()
                     }.toCell()
                 });
             }
@@ -135,13 +135,13 @@ contract Task3 with Deployable {
                     value: 0,
                     mode: SendRemainingValue + SendIgnoreErrors,
                     body: TokenTransfer{
-                            queryId: msg.queryId,
+                            queryId: 0,
                             amount: msg.amount,
                             destination: msg.from,
-                            responseDestination: msg.from,
+                            responseDestination: myAddress(),
                             customPayload: null,
                             forwardTonAmount: ton("0.01"),
-                            forwardPayload: emptyCell().asSlice()
+                            forwardPayload: emptySlice()
                     }.toCell()
                 });
             }
@@ -153,13 +153,13 @@ contract Task3 with Deployable {
                     value: 0,
                     mode: SendRemainingValue + SendIgnoreErrors,
                     body: TokenTransfer{
-                            queryId: msg.queryId,
+                            queryId: 0,
                             amount: qtyA,
                             destination: msg.from,
-                            responseDestination: msg.from,
+                            responseDestination: myAddress(),
                             customPayload: null,
                             forwardTonAmount: ton("0.01"),
-                            forwardPayload: msg.forwardPayload
+                            forwardPayload: emptySlice()
                     }.toCell()
                 });
                 self.aAmount = self.aAmount - qtyA;
@@ -170,13 +170,13 @@ contract Task3 with Deployable {
                     value: 0,
                     mode: SendRemainingValue + SendIgnoreErrors,
                     body: TokenTransfer{
-                            queryId: msg.queryId,
+                            queryId: 0,
                             amount: msg.amount,
                             destination: msg.from,
-                            responseDestination: msg.from,
+                            responseDestination: myAddress(),
                             customPayload: null,
                             forwardTonAmount: ton("0.01"),
-                            forwardPayload: emptyCell().asSlice()
+                            forwardPayload: emptySlice()
                     }.toCell()
                 });
             }
