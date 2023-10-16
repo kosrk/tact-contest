@@ -69,12 +69,10 @@ contract Task5 with Deployable {
   owner: Address;
   nfts: map<Int as uint16, Address>;
   qty: Int as uint16;
-  profit: Int;
   
   init(seed: Int, owner: Address) {
     self.owner = owner;
     self.seed = seed; // needed to deploy multiple smart contracts copies from one admin address
-    self.profit = 0;
     self.qty = 0;
   }
 
@@ -88,7 +86,7 @@ contract Task5 with Deployable {
     }
 
     if (context().value < 2100000000) {
-        if (context().value < 100000000) { return; } // TODO: check min value
+        if (context().value < 80000000) { return; } // TODO: check min value
         send(SendParameters{
             to: sender(),
             value: 0,
@@ -111,8 +109,8 @@ contract Task5 with Deployable {
 
     send(SendParameters{
         to: self.nfts.get(randomIndex)!!,
-        value: 0,
-        mode: SendRemainingValue + SendIgnoreErrors,
+        value: context().value - 2000000000,
+        mode: SendIgnoreErrors,
         body: Transfer{
                 queryId: msg.queryId,
                 newOwner: msg.prevOwner,
@@ -128,13 +126,40 @@ contract Task5 with Deployable {
   }
 
   receive(msg: AdminWithdrawalProfit) {
+    require(sender() == self.owner, "Insufficient privelegies"); // TODO: maybe fix typo
+    send(SendParameters{
+        to: sender(),
+        value: myBalance() - 100000000,
+        mode: SendIgnoreErrors,
+        body: AdminFetchProfit{
+                queryId: msg.queryId
+        }.toCell()
+    });
   }
 
   receive(msg: AdminWithdrawalAllNFTs) {
+    require(context().value >= 1000000000 + self.qty * 80000000, "Insufficent funds");
+    require(sender() == self.owner, "Invalid sender");
+    while (self.qty > 0) {
+        send(SendParameters{
+            to: sender(),
+            value: 80000000,
+            mode: SendIgnoreErrors,
+            body: Transfer{
+                    queryId: msg.queryId,
+                    newOwner: sender(),
+                    responseDestination: sender(),
+                    customPayload: null,
+                    forwardAmount: 0,
+                    forwardPayload: emptySlice()
+            }.toCell()
+        });
+        self.qty = self.qty - 1;
+    }
   }
 
   get fun profit(): Int {
-    return self.profit;
+    return myBalance() - 100000000;
   }
   
   get fun nfts(): map<Int as uint16, Address> {
