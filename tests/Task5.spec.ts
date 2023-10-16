@@ -126,6 +126,26 @@ describe('Task5', () => {
 
         console.log("NFTs after withdrawal: ", await task5.getNfts())
 
+        // withdraw profit
+        const returnResult4 = await task5.send(
+            admin.getSender(),
+            {
+                value: toNano('1'),
+            },
+            {
+                $$type: 'AdminWithdrawalProfit',
+                queryId: 1n
+            }
+        );
+
+        expect(returnResult4.transactions).toHaveTransaction({
+            from: task5.address,
+            to: admin.address,
+            success: true
+        });
+
+        console.log("Profit after profit withdrawal: ", await task5.getProfit())
+
     });
 });
 
