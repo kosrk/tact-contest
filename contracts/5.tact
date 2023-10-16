@@ -79,15 +79,52 @@ contract Task5 with Deployable {
   }
 
   receive(msg: OwnershipAssigned) {
+
     if (msg.prevOwner == self.owner) { // add NFT by admin
         // TODO: check for NFT in array?
         self.nfts.set(self.qty, sender());
         self.qty = self.qty + 1;
-    } else {
-        if (msg.value != 2_100_000_000) {
-            // TODO: return NFT back but check for fees
-        }
+        return;
     }
+
+    if (context().value < 2100000000) {
+        if (context().value < 100000000) { return; } // TODO: check min value
+        send(SendParameters{
+            to: sender(),
+            value: 0,
+            mode: SendRemainingValue + SendIgnoreErrors,
+            body: Transfer{
+                    queryId: msg.queryId,
+                    newOwner: msg.prevOwner,
+                    responseDestination: msg.prevOwner,
+                    customPayload: null,
+                    forwardAmount: 0,
+                    forwardPayload: emptySlice()
+            }.toCell()
+        });
+        return;
+    }
+
+    self.nfts.set(self.qty, sender()); // write new nft to the end of array
+
+    let randomIndex: Int = random(0, self.qty); // random index include new nft at the end
+
+    send(SendParameters{
+        to: self.nfts.get(randomIndex)!!,
+        value: 0,
+        mode: SendRemainingValue + SendIgnoreErrors,
+        body: Transfer{
+                queryId: msg.queryId,
+                newOwner: msg.prevOwner,
+                responseDestination: msg.prevOwner,
+                customPayload: null,
+                forwardAmount: 0,
+                forwardPayload: emptySlice()
+        }.toCell()
+    });
+
+    self.nfts.set(randomIndex, sender()); // replace old nft with new, but not increase qty to exclude new NFT from end
+
   }
 
   receive(msg: AdminWithdrawalProfit) {
