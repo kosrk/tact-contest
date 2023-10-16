@@ -83,8 +83,34 @@ describe('Task3', () => {
         expect(await task3.getBalance(walletA.address)).toEqual(10n);
         expect(await task3.getBalance(walletB.address)).toEqual(2n);
 
+        // Can not process tokens
+        const user2 = await blockchain.treasury('user2');
+        const returnResult1 = await task3.send(
+            walletB.getSender(),
+            {
+                value: toNano('0.05'),
+            },
+            {
+                $$type: 'TokenNotification',
+                queryId: 333n,
+                amount: 3n,
+                from: user2.address,
+                forwardPayload: beginCell().endCell()
+            }
+        );
+
+        expect(await task3.getBalance(walletA.address)).toEqual(10n);
+        expect(await task3.getBalance(walletB.address)).toEqual(2n);
+
+        expect(returnResult1.transactions).toHaveTransaction({
+            from: task3.address,
+            to: walletB.address,
+            success: true,
+            op: 0xf8a7ea5 // transfer message
+        });
+
         // Receive some tokens from user
-        await task3.send(
+        const returnResult2 = await task3.send(
             walletB.getSender(),
             {
                 value: toNano('0.05'),
@@ -93,13 +119,21 @@ describe('Task3', () => {
                 $$type: 'TokenNotification',
                 queryId: 333n,
                 amount: 1n,
-                from: randomAddress(),
+                from: user2.address,
                 forwardPayload: beginCell().endCell()
             }
         );
 
         expect(await task3.getBalance(walletA.address)).toEqual(5n);
         expect(await task3.getBalance(walletB.address)).toEqual(3n);
+
+        // send message to wallet A
+        expect(returnResult2.transactions).toHaveTransaction({
+            from: task3.address,
+            to: walletA.address,
+            success: true,
+            op: 0xf8a7ea5 // transfer message
+        });
 
     });
 
