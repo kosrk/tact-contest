@@ -151,8 +151,8 @@ contract Task5 with Deployable {
             mode: SendIgnoreErrors,
             body: Transfer{
                     queryId: msg.queryId,
-                    newOwner: sender(),
-                    responseDestination: sender(),
+                    newOwner: self.owner,
+                    responseDestination: self.owner,
                     customPayload: null,
                     forwardAmount: 0,
                     forwardPayload: emptySlice()
