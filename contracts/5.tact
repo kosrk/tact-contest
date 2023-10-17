@@ -164,13 +164,12 @@ contract Task5 with Deployable {
     if (self.qty > 0) {
         send(SendParameters{
             to: myAddress(),
-            value: 0,
-            mode: SendRemainingValue + SendIgnoreErrors,
+            value: context().value - (1000000000 + self.qty * 80000000),
+            mode: SendIgnoreErrors + SendPayGasSeparately,
             body: AdminWithdrawalAllNFTs{
                     queryId: msg.queryId
             }.toCell()
         });
-        return;
     } else {
         self.nfts = emptyMap();
     }
