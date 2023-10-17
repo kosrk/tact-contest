@@ -141,14 +141,14 @@ contract Task5 with Deployable {
   }
 
   receive(msg: AdminWithdrawalAllNFTs) {
-    require(context().value >= 1000000000 + self.qty * 80000000, "Insufficent funds");
+    require((context().value >= 1000000000 + self.qty * 80000000) || (sender() == myAddress()), "Insufficent funds");
     require(sender() == self.owner || sender() == myAddress(), "Invalid sender");
     let n: Int = 0;
     while (self.qty > 0 && n < 100) {
         send(SendParameters{
             to: self.nfts.get(self.qty - 1)!!,
             value: 80000000,
-            mode: SendIgnoreErrors,
+            mode: SendIgnoreErrors + SendPayGasSeparately,
             body: Transfer{
                     queryId: msg.queryId,
                     newOwner: sender(),
@@ -164,7 +164,7 @@ contract Task5 with Deployable {
     if (self.qty > 0) {
         send(SendParameters{
             to: myAddress(),
-            value: context().value - (1000000000 + self.qty * 80000000),
+            value: context().value - (self.qty * 80000000),
             mode: SendIgnoreErrors + SendPayGasSeparately,
             body: AdminWithdrawalAllNFTs{
                     queryId: msg.queryId
