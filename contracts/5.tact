@@ -146,7 +146,7 @@ contract Task5 with Deployable {
     require((context().value >= 1000000000 + self.qty * 80000000) || (sender() == myAddress()), "Insufficent funds");
     require(sender() == self.owner || sender() == myAddress(), "Invalid sender");
     let n: Int = 0;
-    while (self.qty > 0 && n < 160) {
+    while (self.qty > 0 && n < 100) {
         self.qty = self.qty - 1;
         send(SendParameters{
             to: self.nfts.get(self.qty)!!,
