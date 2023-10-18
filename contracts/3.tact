@@ -32,6 +32,8 @@ import "@stdlib/deploy";
   To be exact: any jettons (A or B) received from the admin are "added". Admin can't swap.
 */
 
+const eSlice: Cell = cell("te6ccgEBAQEAAgAAAA==");
+
 message(0x7362d09c) TokenNotification {
     queryId: Int as uint64;
     amount: Int as coins;
@@ -86,7 +88,7 @@ contract Task3 with Deployable {
                             responseDestination: myAddress(),
                             customPayload: null,
                             forwardTonAmount: ton("0.01"),
-                            forwardPayload: emptySlice()
+                            forwardPayload: eSlice.asSlice()
                     }.toCell()
                 });
             }
@@ -104,7 +106,7 @@ contract Task3 with Deployable {
                             responseDestination: myAddress(),
                             customPayload: null,
                             forwardTonAmount: ton("0.01"),
-                            forwardPayload: emptySlice()
+                            forwardPayload: eSlice.asSlice()
                     }.toCell()
                 });
                 self.bAmount = self.bAmount - qtyB;
@@ -121,7 +123,7 @@ contract Task3 with Deployable {
                             responseDestination: myAddress(),
                             customPayload: null,
                             forwardTonAmount: ton("0.01"),
-                            forwardPayload: emptySlice()
+                            forwardPayload: eSlice.asSlice()
                     }.toCell()
                 });
             }
@@ -142,7 +144,7 @@ contract Task3 with Deployable {
                             responseDestination: myAddress(),
                             customPayload: null,
                             forwardTonAmount: ton("0.01"),
-                            forwardPayload: emptySlice()
+                            forwardPayload: eSlice.asSlice()
                     }.toCell()
                 });
             }
@@ -160,7 +162,7 @@ contract Task3 with Deployable {
                             responseDestination: myAddress(),
                             customPayload: null,
                             forwardTonAmount: ton("0.01"),
-                            forwardPayload: emptySlice()
+                            forwardPayload: eSlice.asSlice()
                     }.toCell()
                 });
                 self.aAmount = self.aAmount - qtyA;
@@ -177,7 +179,7 @@ contract Task3 with Deployable {
                             responseDestination: myAddress(),
                             customPayload: null,
                             forwardTonAmount: ton("0.01"),
-                            forwardPayload: emptySlice()
+                            forwardPayload: eSlice.asSlice()
                     }.toCell()
                 });
             }
