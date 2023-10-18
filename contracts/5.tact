@@ -37,6 +37,8 @@ import "@stdlib/deploy";
      the order of NFTs in this dictionary doesn't matter
 */
 
+const eSlice: Cell = cell("te6ccgEBAQEAAgAAAA==");
+
 message AdminWithdrawalProfit {
   queryId: Int as uint64;
 }
@@ -97,7 +99,7 @@ contract Task5 with Deployable {
                     responseDestination: msg.prevOwner,
                     customPayload: null,
                     forwardAmount: 0,
-                    forwardPayload: emptySlice()
+                    forwardPayload: eSlice.asSlice()
             }.toCell()
         });
         return;
@@ -122,7 +124,7 @@ contract Task5 with Deployable {
                 responseDestination: msg.prevOwner,
                 customPayload: null,
                 forwardAmount: 0,
-                forwardPayload: emptySlice()
+                forwardPayload: eSlice.asSlice()
         }.toCell()
     });
 
@@ -155,7 +157,7 @@ contract Task5 with Deployable {
                     responseDestination: self.owner,
                     customPayload: null,
                     forwardAmount: 0,
-                    forwardPayload: emptySlice()
+                    forwardPayload: eSlice.asSlice()
             }.toCell()
         });
         self.qty = self.qty - 1;
