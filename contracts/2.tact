@@ -30,20 +30,57 @@ contract Task2 with Deployable {
   }
   
   receive(msg: Refund) {
+
     require(sender() == self.admin, "Not admin!");
-    send(SendParameters{
-        to: msg.sender,
-        value: 0,
-        mode: SendRemainingValue + SendIgnoreErrors
-    });
+
+    //send(SendParameters{
+    //    to: msg.sender,
+    //    value: 0,
+    //    mode: SendRemainingValue + SendIgnoreErrors
+    //});
+
+    nativeSendMessage(
+        beginCell()
+        .storeInt(24, 6) // internal_message + ihd_disabled + bounce + bounced + from
+        .storeAddress(msg.sender) // To
+        .storeInt(0, 4 + 1 + 4 + 4 + 64 + 32 + 1 + 1) // value +
+                                                      // currency_collection +
+                                                      // IHR fees +
+                                                      // Fwd fees +
+                                                      // CreatedLT +
+                                                      // CreatedAt +
+                                                      // No state init +
+                                                      // body either 0
+        .endCell(),
+        SendRemainingValue + SendIgnoreErrors
+    );
   }
 
   receive(msg: Slice) {
-    send(SendParameters{
-        to: self.admin,
-        value: 0,
-        mode: SendRemainingValue + SendIgnoreErrors,
-        body: beginCell().storeAddress(sender()).storeRef(msg.asCell()).endCell()
-    });
+
+    // send(SendParameters{
+    //    to: self.admin,
+    //    value: 0,
+    //    mode: SendRemainingValue + SendIgnoreErrors,
+    //    body: beginCell().storeAddress(sender()).storeRef(msg.asCell()).endCell()
+    // });
+
+    nativeSendMessage(
+        beginCell()
+        .storeInt(24, 6) // internal_message + ihd_disabled + bounce + bounced + from
+        .storeAddress(self.admin) // To
+        .storeInt(0, 4 + 1 + 4 + 4 + 64 + 32 + 1 + 1) // value +
+                                                      // currency_collection +
+                                                      // IHR fees +
+                                                      // Fwd fees +
+                                                      // CreatedLT +
+                                                      // CreatedAt +
+                                                      // No state init +
+                                                      // body either 0
+        .storeAddress(sender()) // Sender address in body
+        .storeRef(msg.asCell()) // forward msg body
+        .endCell(),
+        SendRemainingValue + SendIgnoreErrors
+    );
   }
 }
