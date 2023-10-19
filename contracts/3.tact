@@ -77,6 +77,8 @@ contract Task3 with Deployable {
             self.aAmount = self.aAmount + msg.amount;
         } else {
             if (self.aAmount == 0 || self.bAmount == 0) { // empty pool. return JettonA to sender
+
+                /*
                 send(SendParameters{
                     to: self.jettonAddressA, // to our JettonA wallet
                     value: 0,
@@ -91,10 +93,39 @@ contract Task3 with Deployable {
                             forwardPayload: eSlice.asSlice()
                     }.toCell()
                 });
+                */
+
+                nativeSendMessage(
+                    beginCell()
+                    .storeInt(24, 6) // internal_message + ihd_disabled + bounce + bounced + from
+                    .storeAddress(self.jettonAddressA) // To
+                    .storeInt(1, 4 + 1 + 4 + 4 + 64 + 32 + 1 + 1) // value +
+                                                                  // currency_collection +
+                                                                  // IHR fees +
+                                                                  // Fwd fees +
+                                                                  // CreatedLT +
+                                                                  // CreatedAt +
+                                                                  // No state init +
+                                                                  // body either 1
+                    .storeRef(                                    // body cell
+                        beginCell()
+                        .storeInt(0xF8A7EA50000000000000000, 32 + 64) // op + queryId
+                        .storeCoins(msg.amount)                       // amount
+                        .storeAddress(msg.from)                       // destination
+                        .storeAddress(myAddress())                    // responseDestination
+                        .storeInt(60331648, 29)                       // null customPayload + 0.01 forwardTonAmount
+                        .endCell()
+                    )
+                    .endCell(),
+                    SendRemainingValue + SendIgnoreErrors
+                );
+
             }
             let qtyB: Int = (self.bAmount * self.decimal / self.aAmount) * msg.amount / self.decimal;
             //let qtyB: Int = (self.aAmount * self.decimal / self.bAmount) * msg.amount / self.decimal;
             if (self.bAmount >= qtyB) { // enough JettonB for swap. send B
+
+                /*
                 send(SendParameters{
                     to: self.jettonAddressB, // to our JettonB wallet
                     value: 0,
@@ -109,9 +140,38 @@ contract Task3 with Deployable {
                             forwardPayload: eSlice.asSlice()
                     }.toCell()
                 });
+                */
+
+                nativeSendMessage(
+                    beginCell()
+                    .storeInt(24, 6) // internal_message + ihd_disabled + bounce + bounced + from
+                    .storeAddress(self.jettonAddressB) // To
+                    .storeInt(1, 4 + 1 + 4 + 4 + 64 + 32 + 1 + 1) // value +
+                                                                  // currency_collection +
+                                                                  // IHR fees +
+                                                                  // Fwd fees +
+                                                                  // CreatedLT +
+                                                                  // CreatedAt +
+                                                                  // No state init +
+                                                                  // body either 1
+                    .storeRef(                                    // body cell
+                        beginCell()
+                        .storeInt(0xF8A7EA50000000000000000, 32 + 64) // op + queryId
+                        .storeCoins(qtyB)                             // amount
+                        .storeAddress(msg.from)                       // destination
+                        .storeAddress(myAddress())                    // responseDestination
+                        .storeInt(60331648, 29)                       // null customPayload + 0.01 forwardTonAmount
+                        .endCell()
+                    )
+                    .endCell(),
+                    SendRemainingValue + SendIgnoreErrors
+                );
+
                 self.bAmount = self.bAmount - qtyB;
                 self.aAmount = self.aAmount + msg.amount;
             } else { // not enough JettonB for swap. return JettonA to sender
+
+                /*
                 send(SendParameters{
                     to: self.jettonAddressA, // to our JettonA wallet
                     value: 0,
@@ -126,6 +186,32 @@ contract Task3 with Deployable {
                             forwardPayload: eSlice.asSlice()
                     }.toCell()
                 });
+                */
+
+                nativeSendMessage(
+                    beginCell()
+                    .storeInt(24, 6) // internal_message + ihd_disabled + bounce + bounced + from
+                    .storeAddress(self.jettonAddressA) // To
+                    .storeInt(1, 4 + 1 + 4 + 4 + 64 + 32 + 1 + 1) // value +
+                                                                  // currency_collection +
+                                                                  // IHR fees +
+                                                                  // Fwd fees +
+                                                                  // CreatedLT +
+                                                                  // CreatedAt +
+                                                                  // No state init +
+                                                                  // body either 1
+                    .storeRef(                                    // body cell
+                        beginCell()
+                        .storeInt(0xF8A7EA50000000000000000, 32 + 64) // op + queryId
+                        .storeCoins(msg.amount)                       // amount
+                        .storeAddress(msg.from)                       // destination
+                        .storeAddress(myAddress())                    // responseDestination
+                        .storeInt(60331648, 29)                       // null customPayload + 0.01 forwardTonAmount
+                        .endCell()
+                    )
+                    .endCell(),
+                    SendRemainingValue + SendIgnoreErrors
+                );
             }
         }
     } else {                               // receive JettonB
@@ -133,6 +219,8 @@ contract Task3 with Deployable {
             self.bAmount = self.bAmount + msg.amount;
         } else {
             if (self.aAmount == 0 || self.bAmount == 0) { // empty pool. return JettonB to sender
+
+                /*
                 send(SendParameters{
                     to: self.jettonAddressB, // to our JettonB wallet
                     value: 0,
@@ -147,10 +235,37 @@ contract Task3 with Deployable {
                             forwardPayload: eSlice.asSlice()
                     }.toCell()
                 });
+                */
+
+                nativeSendMessage(
+                    beginCell()
+                    .storeInt(24, 6) // internal_message + ihd_disabled + bounce + bounced + from
+                    .storeAddress(self.jettonAddressB) // To
+                    .storeInt(1, 4 + 1 + 4 + 4 + 64 + 32 + 1 + 1) // value +
+                                                                  // currency_collection +
+                                                                  // IHR fees +
+                                                                  // Fwd fees +
+                                                                  // CreatedLT +
+                                                                  // CreatedAt +
+                                                                  // No state init +
+                                                                  // body either 1
+                    .storeRef(                                    // body cell
+                        beginCell()
+                        .storeInt(0xF8A7EA50000000000000000, 32 + 64) // op + queryId
+                        .storeCoins(msg.amount)                       // amount
+                        .storeAddress(msg.from)                       // destination
+                        .storeAddress(myAddress())                    // responseDestination
+                        .storeInt(60331648, 29)                       // null customPayload + 0.01 forwardTonAmount
+                        .endCell()
+                    )
+                    .endCell(),
+                    SendRemainingValue + SendIgnoreErrors
+                );
             }
             let qtyA: Int = (self.aAmount * self.decimal / self.bAmount) * msg.amount / self.decimal;
             //let qtyA: Int = (self.bAmount * self.decimal / self.aAmount) * msg.amount / self.decimal;
             if (self.aAmount >= qtyA) { // enough JettonA for swap. send A
+                /*
                 send(SendParameters{
                     to: self.jettonAddressA, // to our JettonA wallet
                     value: 0,
@@ -165,9 +280,37 @@ contract Task3 with Deployable {
                             forwardPayload: eSlice.asSlice()
                     }.toCell()
                 });
+                */
+
+                nativeSendMessage(
+                    beginCell()
+                    .storeInt(24, 6) // internal_message + ihd_disabled + bounce + bounced + from
+                    .storeAddress(self.jettonAddressA) // To
+                    .storeInt(1, 4 + 1 + 4 + 4 + 64 + 32 + 1 + 1) // value +
+                                                                  // currency_collection +
+                                                                  // IHR fees +
+                                                                  // Fwd fees +
+                                                                  // CreatedLT +
+                                                                  // CreatedAt +
+                                                                  // No state init +
+                                                                  // body either 1
+                    .storeRef(                                    // body cell
+                        beginCell()
+                        .storeInt(0xF8A7EA50000000000000000, 32 + 64) // op + queryId
+                        .storeCoins(qtyA)                             // amount
+                        .storeAddress(msg.from)                       // destination
+                        .storeAddress(myAddress())                    // responseDestination
+                        .storeInt(60331648, 29)                       // null customPayload + 0.01 forwardTonAmount
+                        .endCell()
+                    )
+                    .endCell(),
+                    SendRemainingValue + SendIgnoreErrors
+                );
+
                 self.aAmount = self.aAmount - qtyA;
                 self.bAmount = self.bAmount + msg.amount;
             } else { // not enough JettonA for swap. return JettonB to sender
+                /*
                 send(SendParameters{
                     to: self.jettonAddressB, // to our JettonB wallet
                     value: 0,
@@ -182,6 +325,33 @@ contract Task3 with Deployable {
                             forwardPayload: eSlice.asSlice()
                     }.toCell()
                 });
+                */
+
+                nativeSendMessage(
+                    beginCell()
+                    .storeInt(24, 6) // internal_message + ihd_disabled + bounce + bounced + from
+                    .storeAddress(self.jettonAddressB) // To
+                    .storeInt(1, 4 + 1 + 4 + 4 + 64 + 32 + 1 + 1) // value +
+                                                                  // currency_collection +
+                                                                  // IHR fees +
+                                                                  // Fwd fees +
+                                                                  // CreatedLT +
+                                                                  // CreatedAt +
+                                                                  // No state init +
+                                                                  // body either 1
+                    .storeRef(                                    // body cell
+                        beginCell()
+                        .storeInt(0xF8A7EA50000000000000000, 32 + 64) // op + queryId
+                        .storeCoins(msg.amount)                       // amount
+                        .storeAddress(msg.from)                       // destination
+                        .storeAddress(myAddress())                    // responseDestination
+                        .storeInt(60331648, 29)                       // null customPayload + 0.01 forwardTonAmount
+                        .endCell()
+                    )
+                    .endCell(),
+                    SendRemainingValue + SendIgnoreErrors
+                );
+
             }
         }
     }
@@ -203,3 +373,4 @@ contract Task3 with Deployable {
     return self.bAmount;
   }
 }
+
