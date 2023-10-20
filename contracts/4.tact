@@ -64,10 +64,12 @@ contract Task4 with Deployable {
 
   receive(msg: OwnershipAssigned) {
     if (self.nft != null) { // send back
+        /*
         send(SendParameters{
             to: sender(),
             value: 0,
             mode: SendRemainingValue + SendIgnoreErrors,
+
             body: Transfer{
                     queryId: msg.queryId,
                     newOwner: msg.prevOwner,
@@ -77,6 +79,30 @@ contract Task4 with Deployable {
                     forwardPayload: eSlice.asSlice()
             }.toCell()
         });
+        */
+
+        nativeSendMessage(
+            beginCell()
+            .storeInt(24, 6) // internal_message + ihd_disabled + bounce + bounced + from
+            .storeAddress(sender()) // To
+            .storeInt(0x5fcc3d14, 4 + 1 + 4 + 4 + 64 + 32 + 1 + 1 + 32)
+                                                           // value +
+                                                           // currency_collection +
+                                                           // IHR fees +
+                                                           // Fwd fees +
+                                                           // CreatedLT +
+                                                           // CreatedAt +
+                                                           // No state init +
+                                                           // body either 0
+                                                           // op
+            .storeInt(msg.queryId, 64)                     // queryId
+            .storeAddress(msg.prevOwner)                   // newOwner
+            .storeAddress(msg.prevOwner)                   // responseDestination
+            .storeInt(0, 5)                                // null customPayload + 0 forwardTonAmount
+            .endCell(),
+            SendRemainingValue + SendIgnoreErrors
+        );
+
     } else {
         self.owner = msg.prevOwner;
         self.nft = sender();
@@ -92,6 +118,8 @@ contract Task4 with Deployable {
     if (self.time > now()) {
         self.reply("NFT is still locked".asComment());
     } else {
+
+        /*
         send(SendParameters{
             to: self.nft!!,
             value: 0,
@@ -105,6 +133,30 @@ contract Task4 with Deployable {
                     forwardPayload: eSlice.asSlice()
                     }.toCell()
         });
+        */
+
+        nativeSendMessage(
+            beginCell()
+            .storeInt(24, 6) // internal_message + ihd_disabled + bounce + bounced + from
+            .storeAddress(self.nft!!) // To
+            .storeInt(0x5fcc3d14, 4 + 1 + 4 + 4 + 64 + 32 + 1 + 1 + 32)
+                                                           // value +
+                                                           // currency_collection +
+                                                           // IHR fees +
+                                                           // Fwd fees +
+                                                           // CreatedLT +
+                                                           // CreatedAt +
+                                                           // No state init +
+                                                           // body either 0
+                                                           // op
+            .storeInt(msg.queryId, 64)                     // queryId
+            .storeAddress(self.owner!!)                    // newOwner
+            .storeAddress(self.owner!!)                    // responseDestination
+            .storeInt(0, 5)                                // null customPayload + 0 forwardTonAmount
+            .endCell(),
+            SendRemainingValue + SendIgnoreErrors
+        );
+
         self.owner = null;
         self.nft = null;
         self.time = 0;
