@@ -99,7 +99,7 @@ contract Task3 with Deployable {
                     beginCell()
                     .storeInt(24, 6) // internal_message + ihd_disabled + bounce + bounced + from
                     .storeAddress(self.jettonAddressA) // To
-                    .storeInt(1, 4 + 1 + 4 + 4 + 64 + 32 + 1 + 1) // value +
+                    .storeInt(0, 4 + 1 + 4 + 4 + 64 + 32 + 1 + 1) // value +
                                                                   // currency_collection +
                                                                   // IHR fees +
                                                                   // Fwd fees +
@@ -107,16 +107,16 @@ contract Task3 with Deployable {
                                                                   // CreatedAt +
                                                                   // No state init +
                                                                   // body either 1
-                    .storeRef(                                    // body cell
-                        beginCell()
+                    //.storeRef(                                    // body cell
+                    //    beginCell()
                         .storeInt(0xF8A7EA50000000000000000, 32 + 64) // op + queryId
                         .storeCoins(msg.amount)                       // amount
                         .storeAddress(msg.from)                       // destination
                         //.storeAddress(myAddress())                    // responseDestination
                         .storeUint(0,2)
                         .storeInt(60331648, 29)                       // null customPayload + 0.01 forwardTonAmount
-                        .endCell()
-                    )
+                    //    .endCell()
+                    //)
                     .endCell(),
                     SendRemainingValue + SendIgnoreErrors
                 );
@@ -160,8 +160,7 @@ contract Task3 with Deployable {
                         .storeInt(0xF8A7EA50000000000000000, 32 + 64) // op + queryId
                         .storeCoins(qtyB)                             // amount
                         .storeAddress(msg.from)                       // destination
-                        //.storeAddress(myAddress())                    // responseDestination
-                        .storeUint(0,2)
+                        .storeAddress(myAddress())                    // responseDestination
                         .storeInt(60331648, 29)                       // null customPayload + 0.01 forwardTonAmount
                         .endCell()
                     )
@@ -207,8 +206,7 @@ contract Task3 with Deployable {
                         .storeInt(0xF8A7EA50000000000000000, 32 + 64) // op + queryId
                         .storeCoins(msg.amount)                       // amount
                         .storeAddress(msg.from)                       // destination
-                        //.storeAddress(myAddress())                    // responseDestination
-                        .storeUint(0,2)
+                        .storeAddress(myAddress())                    // responseDestination
                         .storeInt(60331648, 29)                       // null customPayload + 0.01 forwardTonAmount
                         .endCell()
                     )
@@ -257,8 +255,7 @@ contract Task3 with Deployable {
                         .storeInt(0xF8A7EA50000000000000000, 32 + 64) // op + queryId
                         .storeCoins(msg.amount)                       // amount
                         .storeAddress(msg.from)                       // destination
-                        //.storeAddress(myAddress())                    // responseDestination
-                        .storeUint(0,2)
+                        .storeAddress(myAddress())                    // responseDestination
                         .storeInt(60331648, 29)                       // null customPayload + 0.01 forwardTonAmount
                         .endCell()
                     )
@@ -303,8 +300,7 @@ contract Task3 with Deployable {
                         .storeInt(0xF8A7EA50000000000000000, 32 + 64) // op + queryId
                         .storeCoins(qtyA)                             // amount
                         .storeAddress(msg.from)                       // destination
-                        //.storeAddress(myAddress())                    // responseDestination
-                        .storeUint(0,2)
+                        .storeAddress(myAddress())                    // responseDestination
                         .storeInt(60331648, 29)                       // null customPayload + 0.01 forwardTonAmount
                         .endCell()
                     )
@@ -349,8 +345,7 @@ contract Task3 with Deployable {
                         .storeInt(0xF8A7EA50000000000000000, 32 + 64) // op + queryId
                         .storeCoins(msg.amount)                       // amount
                         .storeAddress(msg.from)                       // destination
-                        //.storeAddress(myAddress())                    // responseDestination
-                        .storeUint(0,2)
+                        .storeAddress(myAddress())                    // responseDestination
                         .storeInt(60331648, 29)                       // null customPayload + 0.01 forwardTonAmount
                         .endCell()
                     )
