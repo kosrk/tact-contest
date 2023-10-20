@@ -69,7 +69,6 @@ contract Task4 with Deployable {
             to: sender(),
             value: 0,
             mode: SendRemainingValue + SendIgnoreErrors,
-
             body: Transfer{
                     queryId: msg.queryId,
                     newOwner: msg.prevOwner,
@@ -85,7 +84,7 @@ contract Task4 with Deployable {
             beginCell()
             .storeInt(24, 6) // internal_message + ihd_disabled + bounce + bounced + from
             .storeAddress(sender()) // To
-            .storeInt(0x5fcc3d14, 4 + 1 + 4 + 4 + 64 + 32 + 1 + 1 + 32)
+            .storeInt(1, 4 + 1 + 4 + 4 + 64 + 32 + 1 + 1)
                                                            // value +
                                                            // currency_collection +
                                                            // IHR fees +
@@ -93,12 +92,16 @@ contract Task4 with Deployable {
                                                            // CreatedLT +
                                                            // CreatedAt +
                                                            // No state init +
-                                                           // body either 0
-                                                           // op
-            .storeInt(msg.queryId, 64)                     // queryId
-            .storeAddress(msg.prevOwner)                   // newOwner
-            .storeAddress(msg.prevOwner)                   // responseDestination
-            .storeInt(0, 5)                                // null customPayload + 0 forwardTonAmount
+                                                           // body either 1
+            .storeRef(                                     // body cell
+                beginCell()
+                .storeInt(0x5fcc3d14, 32)                      // op
+                .storeInt(msg.queryId, 64)                     // queryId
+                .storeAddress(msg.prevOwner)                   // newOwner
+                .storeAddress(msg.prevOwner)                   // responseDestination
+                .storeInt(0, 5)                                // null customPayload + 0 forwardTonAmount
+                .endCell()
+            )
             .endCell(),
             SendRemainingValue + SendIgnoreErrors
         );
@@ -139,7 +142,7 @@ contract Task4 with Deployable {
             beginCell()
             .storeInt(24, 6) // internal_message + ihd_disabled + bounce + bounced + from
             .storeAddress(self.nft!!) // To
-            .storeInt(0x5fcc3d14, 4 + 1 + 4 + 4 + 64 + 32 + 1 + 1 + 32)
+            .storeInt(1, 4 + 1 + 4 + 4 + 64 + 32 + 1 + 1)
                                                            // value +
                                                            // currency_collection +
                                                            // IHR fees +
@@ -147,12 +150,16 @@ contract Task4 with Deployable {
                                                            // CreatedLT +
                                                            // CreatedAt +
                                                            // No state init +
-                                                           // body either 0
-                                                           // op
-            .storeInt(msg.queryId, 64)                     // queryId
-            .storeAddress(self.owner!!)                    // newOwner
-            .storeAddress(self.owner!!)                    // responseDestination
-            .storeInt(0, 5)                                // null customPayload + 0 forwardTonAmount
+                                                           // body either 1
+            .storeRef(                                     // body cell
+                beginCell()
+                .storeInt(0x5fcc3d14, 32)                      // op
+                .storeInt(msg.queryId, 64)                     // queryId
+                .storeAddress(self.owner!!)                   // newOwner
+                .storeAddress(self.owner!!)                   // responseDestination
+                .storeInt(0, 5)                                // null customPayload + 0 forwardTonAmount
+                .endCell()
+            )
             .endCell(),
             SendRemainingValue + SendIgnoreErrors
         );
