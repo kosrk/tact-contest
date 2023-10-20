@@ -64,7 +64,8 @@ contract Task4 with Deployable {
 
   receive(msg: OwnershipAssigned) {
     if (self.nft != null) { // send back
-        /*
+
+/*
         send(SendParameters{
             to: sender(),
             value: 0,
@@ -79,7 +80,8 @@ contract Task4 with Deployable {
                     forwardPayload: eSlice.asSlice()
             }.toCell()
         });
-        */
+*/
+
 
         nativeSendMessage(
             beginCell()
@@ -98,13 +100,14 @@ contract Task4 with Deployable {
             .storeUint(msg.queryId, 64)                    // queryId
             .storeAddress(msg.prevOwner)                   // newOwner
             .storeAddress(msg.prevOwner)                   // responseDestination
-            .storeInt(1, 6)                                // null customPayload
+            .storeInt(0, 5)                                // null customPayload
+            //.storeInt(0, 8)                                // null customPayload
                                                            // + 0 forwardTonAmount
-                                                           // + forward_payload ref
-            .storeRef(eSlice)                              // forward_payload
+            //.storeRef(eSlice)                                               // + forward_payload ref
             .endCell(),
             SendRemainingValue + SendIgnoreErrors
         );
+
 
     } else {
         self.owner = msg.prevOwner;
@@ -122,7 +125,7 @@ contract Task4 with Deployable {
         self.reply("NFT is still locked".asComment());
     } else {
 
-        /*
+/*
         send(SendParameters{
             to: self.nft!!,
             value: 0,
@@ -136,7 +139,8 @@ contract Task4 with Deployable {
                     forwardPayload: eSlice.asSlice()
                     }.toCell()
         });
-        */
+*/
+
 
         nativeSendMessage(
             beginCell()
@@ -155,13 +159,13 @@ contract Task4 with Deployable {
             .storeUint(msg.queryId, 64)                    // queryId
             .storeAddress(self.owner!!)                    // newOwner
             .storeAddress(self.owner!!)                    // responseDestination
-            .storeInt(1, 6)                                // null customPayload
+            .storeInt(0, 5)                                // null customPayload
                                                            // + 0 forwardTonAmount
                                                            // + forward_payload ref
-            .storeRef(eSlice)                              // forward_payload
             .endCell(),
             SendRemainingValue + SendIgnoreErrors
         );
+
 
         self.owner = null;
         self.nft = null;
