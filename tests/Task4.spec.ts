@@ -49,7 +49,7 @@ describe('Task4', () => {
     it("should return owner, NFT address and time", async () =>  {
         const nft = await blockchain.treasury('nft');
         const ownerAddr = randomAddress();
-        await task4.send(
+        const res = await task4.send(
             nft.getSender(),
             {
                 value: toNano('0.05'),
@@ -61,6 +61,7 @@ describe('Task4', () => {
                 forwardPayload: beginCell().storeUint(100000n, 32).endCell()
             }
         );
+
         const addr = await task4.getOwner();
         expect(addr).toEqualAddress(ownerAddr);
         const nftAddr = await task4.getNft();
@@ -70,10 +71,11 @@ describe('Task4', () => {
 
     it("should return NFT back", async () =>  {
         const nft = await blockchain.treasury('nft');
-        const ownerAddr = randomAddress();
+        const owner = await blockchain.treasury('owner');
 
         console.log("NFT addr: ", nft.address)
         console.log("Locker addr: ", task4.address)
+        console.log("Owner addr: ", owner.address)
 
         await task4.send(
             nft.getSender(),
@@ -82,8 +84,8 @@ describe('Task4', () => {
             },
             {
                 $$type: 'OwnershipAssigned',
-                queryId: 0n,
-                prevOwner: ownerAddr,
+                queryId: 10n,
+                prevOwner: owner.address,
                 forwardPayload: beginCell().storeUint(100n, 32).endCell()
             }
         );
@@ -95,7 +97,7 @@ describe('Task4', () => {
             {
                 $$type: 'OwnershipAssigned',
                 queryId: 0n,
-                prevOwner: ownerAddr,
+                prevOwner: owner.address,
                 forwardPayload: beginCell().storeUint(100n, 32).endCell()
             }
         );
@@ -103,10 +105,14 @@ describe('Task4', () => {
             from: task4.address,
             to: nft.address,
             success: true,
-            op: 0x5fcc3d14 // transfer message
+            op: 0x5fcc3d14, // transfer message
         });
 
-        console.log("", returnResult.transactions[1].outMessages.get(0))
+        const a = returnResult.transactions[1].outMessages.get(0);
+        if (a != undefined) {
+            console.log("", a.body.toString())
+        }
+
     })
 
     it("should withdraw NFT", async () =>  {
@@ -151,6 +157,11 @@ describe('Task4', () => {
             op: 0x5fcc3d14 // transfer message
         });
 
+        const a = returnResult.transactions[1].outMessages.get(0);
+        if (a != undefined) {
+            console.log("", a)
+        }
+
         console.log("Time:", await task4.getTime());
         console.log("NFT:", await task4.getNft());
         console.log("Owner:", await task4.getOwner());
@@ -174,5 +185,4 @@ describe('Task4', () => {
     })
 
 });
-
 

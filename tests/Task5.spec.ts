@@ -1,4 +1,4 @@
-import { Blockchain, SandboxContract } from '@ton-community/sandbox';
+import {Blockchain, printTransactionFees, SandboxContract} from '@ton-community/sandbox';
 import {beginCell, toNano} from 'ton-core';
 import { Task5 } from '../wrappers/Task5';
 import '@ton-community/test-utils';
@@ -126,6 +126,12 @@ describe('Task5', () => {
 
         console.log("NFTs after withdrawal: ", await task5.getNfts())
 
+        const a = returnResult3.transactions[1].outMessages.get(0);
+        if (a != undefined) {
+            console.log("", a)
+        }
+
+
         // withdraw profit
         const returnResult4 = await task5.send(
             admin.getSender(),
@@ -137,6 +143,8 @@ describe('Task5', () => {
                 queryId: 1n
             }
         );
+
+        console.log(returnResult4.transactions[1].outMessages.get(0))
 
         expect(returnResult4.transactions).toHaveTransaction({
             from: task5.address,
@@ -187,12 +195,12 @@ describe('Task5', () => {
             success: true
         });
 
-        console.log("NFTs after withdrawal: ", returnResult3)
+        printTransactionFees(returnResult3.transactions);
 
-        console.log("NFTs after withdrawal: ", await task5.getNfts())
+        // console.log("NFTs after withdrawal: ", returnResult3)
+
+        // console.log("NFTs after withdrawal: ", await task5.getNfts())
+
 
     });
 });
-
-
-

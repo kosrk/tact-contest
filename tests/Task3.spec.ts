@@ -1,8 +1,22 @@
-import { Blockchain, SandboxContract } from '@ton-community/sandbox';
+import {
+    Blockchain,
+    BlockchainTransaction,
+    prettyLogTransactions,
+    printTransactionFees,
+    SandboxContract
+} from '@ton-community/sandbox';
 import {Address, beginCell, toNano} from 'ton-core';
 import { Task3 } from '../wrappers/Task3';
 import '@ton-community/test-utils';
 import {randomAddress} from "@ton-community/test-utils";
+
+function sumGas(txs: BlockchainTransaction[]) {
+    let x: bigint = 0n;
+    for (let entry of txs) {
+        x += entry.totalFees.coins;
+    }
+    return x;
+}
 
 describe('Task3', () => {
     let blockchain: Blockchain;
@@ -50,7 +64,9 @@ describe('Task3', () => {
         const walletA = await blockchain.treasury('JettonWalletA');
         const walletB = await blockchain.treasury('JettonWalletB');
 
-        await task3.send(
+        let totalFees: bigint = 0n;
+
+        const r1 = await task3.send(
             walletA.getSender(),
             {
                 value: toNano('0.05'),
@@ -64,7 +80,11 @@ describe('Task3', () => {
             }
         );
 
-        await task3.send(
+        // printTransactionFees(r1.transactions);
+        // prettyLogTransactions(r1.transactions);
+        totalFees += sumGas(r1.transactions);
+
+        const r2 = await task3.send(
             walletB.getSender(),
             {
                 value: toNano('0.05'),
@@ -78,6 +98,10 @@ describe('Task3', () => {
             }
         );
 
+        // printTransactionFees(r2.transactions);
+        // prettyLogTransactions(r2.transactions);
+        totalFees += sumGas(r2.transactions);
+
         expect(await task3.getPrice(walletA.address)).toEqual(200_000_000n);
         expect(await task3.getPrice(walletB.address)).toEqual(5_000_000_000n);
         expect(await task3.getBalance(walletA.address)).toEqual(10n);
@@ -88,7 +112,7 @@ describe('Task3', () => {
         const returnResult1 = await task3.send(
             walletB.getSender(),
             {
-                value: toNano('0.05'),
+                value: toNano('0.1'),
             },
             {
                 $$type: 'TokenNotification',
@@ -99,8 +123,12 @@ describe('Task3', () => {
             }
         );
 
+        totalFees += sumGas(returnResult1.transactions);
+
         expect(await task3.getBalance(walletA.address)).toEqual(10n);
         expect(await task3.getBalance(walletB.address)).toEqual(2n);
+
+        // console.log(returnResult1.transactions[1].outMessages.values())
 
         expect(returnResult1.transactions).toHaveTransaction({
             from: task3.address,
@@ -124,6 +152,11 @@ describe('Task3', () => {
             }
         );
 
+        printTransactionFees(returnResult2.transactions);
+        // prettyLogTransactions(r2.transactions);
+
+        totalFees += sumGas(returnResult2.transactions);
+
         expect(await task3.getBalance(walletA.address)).toEqual(5n);
         expect(await task3.getBalance(walletB.address)).toEqual(3n);
 
@@ -135,8 +168,44 @@ describe('Task3', () => {
             op: 0xf8a7ea5 // transfer message
         });
 
+        console.log("Total fees: ", totalFees)
+
     });
 
 });
 
-
+// ┌─────────┬──────────────┬───────────────┬───────────────┬────────────────┬────────────────┬────────────────┬────────────┬────────────────┬──────────┬────────────┐
+// │ (index) │      op      │    valueIn    │   valueOut    │   totalFees    │  inForwardFee  │ outForwardFee  │ outActions │   computeFee   │ exitCode │ actionCode │
+// ├─────────┼──────────────┼───────────────┼───────────────┼────────────────┼────────────────┼────────────────┼────────────┼────────────────┼──────────┼────────────┤
+// │    0    │    'N/A'     │     'N/A'     │  '0.05 TON'   │ '0.004436 TON' │     'N/A'      │ '0.001475 TON' │     1      │ '0.001937 TON' │    0     │     0      │
+// │    1    │ '0x7362d09c' │  '0.05 TON'   │ '0.03359 TON' │ '0.01523 TON'  │ '0.000984 TON' │ '0.001771 TON' │     1      │ '0.014639 TON' │    0     │     0      │
+// │    2    │ '0xf8a7ea5'  │ '0.03359 TON' │    '0 TON'    │ '0.000309 TON' │ '0.001181 TON' │     'N/A'      │     0      │ '0.000309 TON' │    0     │     0      │
+// └─────────┴──────────────┴───────────────┴───────────────┴────────────────┴────────────────┴────────────────┴────────────┴────────────────┴──────────┴────────────┘
+// ┌─────────┬──────────────┬────────────────┬────────────────┬────────────────┬────────────────┬────────────────┬────────────┬────────────────┬──────────┬────────────┐
+// │ (index) │      op      │    valueIn     │    valueOut    │   totalFees    │  inForwardFee  │ outForwardFee  │ outActions │   computeFee   │ exitCode │ actionCode │
+// ├─────────┼──────────────┼────────────────┼────────────────┼────────────────┼────────────────┼────────────────┼────────────┼────────────────┼──────────┼────────────┤
+// │    0    │    'N/A'     │     'N/A'      │   '0.05 TON'   │ '0.004436 TON' │     'N/A'      │ '0.001475 TON' │     1      │ '0.001937 TON' │    0     │     0      │
+// │    1    │ '0x7362d09c' │   '0.05 TON'   │ '0.033626 TON' │ '0.015194 TON' │ '0.000984 TON' │ '0.001771 TON' │     1      │ '0.014603 TON' │    0     │     0      │
+// │    2    │ '0xf8a7ea5'  │ '0.033626 TON' │    '0 TON'     │ '0.000309 TON' │ '0.001181 TON' │     'N/A'      │     0      │ '0.000309 TON' │    0     │     0      │
+// └─────────┴──────────────┴────────────────┴────────────────┴────────────────┴────────────────┴────────────────┴────────────┴────────────────┴──────────┴────────────┘
+// ┌─────────┬──────────────┬────────────────┬────────────────┬────────────────┬────────────────┬────────────────┬────────────┬────────────────┬──────────┬────────────┐
+// │ (index) │      op      │    valueIn     │    valueOut    │   totalFees    │  inForwardFee  │ outForwardFee  │ outActions │   computeFee   │ exitCode │ actionCode │
+// ├─────────┼──────────────┼────────────────┼────────────────┼────────────────┼────────────────┼────────────────┼────────────┼────────────────┼──────────┼────────────┤
+// │    0    │    'N/A'     │     'N/A'      │   '0.05 TON'   │ '0.004436 TON' │     'N/A'      │ '0.001475 TON' │     1      │ '0.001937 TON' │    0     │     0      │
+// │    1    │ '0x7362d09c' │   '0.05 TON'   │ '0.033482 TON' │ '0.015338 TON' │ '0.000984 TON' │ '0.001771 TON' │     1      │ '0.014747 TON' │    0     │     0      │
+// │    2    │ '0xf8a7ea5'  │ '0.033482 TON' │    '0 TON'     │ '0.000309 TON' │ '0.001181 TON' │     'N/A'      │     0      │ '0.000309 TON' │    0     │     0      │
+// └─────────┴──────────────┴────────────────┴────────────────┴────────────────┴────────────────┴────────────────┴────────────┴────────────────┴──────────┴────────────┘
+// ┌─────────┬──────────────┬────────────────┬────────────────┬────────────────┬────────────────┬────────────────┬────────────┬────────────────┬──────────┬────────────┐
+// │ (index) │      op      │    valueIn     │    valueOut    │   totalFees    │  inForwardFee  │ outForwardFee  │ outActions │   computeFee   │ exitCode │ actionCode │
+// ├─────────┼──────────────┼────────────────┼────────────────┼────────────────┼────────────────┼────────────────┼────────────┼────────────────┼──────────┼────────────┤
+// │    0    │    'N/A'     │     'N/A'      │   '0.05 TON'   │ '0.004436 TON' │     'N/A'      │ '0.001475 TON' │     1      │ '0.001937 TON' │    0     │     0      │
+// │    1    │ '0x7362d09c' │   '0.05 TON'   │ '0.033794 TON' │ '0.014871 TON' │ '0.000984 TON' │ '0.002003 TON' │     1      │ '0.014203 TON' │    0     │     0      │
+// │    2    │ '0xf8a7ea5'  │ '0.033794 TON' │    '0 TON'     │ '0.000309 TON' │ '0.001336 TON' │     'N/A'      │     0      │ '0.000309 TON' │    0     │     0      │
+// └─────────┴──────────────┴────────────────┴────────────────┴────────────────┴────────────────┴────────────────┴────────────┴────────────────┴──────────┴────────────┘
+// ┌─────────┬──────────────┬────────────────┬────────────────┬────────────────┬────────────────┬────────────────┬────────────┬────────────────┬──────────┬────────────┐
+// │ (index) │      op      │    valueIn     │    valueOut    │   totalFees    │  inForwardFee  │ outForwardFee  │ outActions │   computeFee   │ exitCode │ actionCode │
+// ├─────────┼──────────────┼────────────────┼────────────────┼────────────────┼────────────────┼────────────────┼────────────┼────────────────┼──────────┼────────────┤
+// │    0    │    'N/A'     │     'N/A'      │   '0.05 TON'   │ '0.004436 TON' │     'N/A'      │ '0.001475 TON' │     1      │ '0.001937 TON' │    0     │     0      │
+// │    1    │ '0x7362d09c' │   '0.05 TON'   │ '0.036025 TON' │ '0.012795 TON' │ '0.000984 TON' │ '0.001771 TON' │     1      │ '0.012204 TON' │    0     │     0      │
+// │    2    │ '0xf8a7ea5'  │ '0.036025 TON' │    '0 TON'     │ '0.000309 TON' │ '0.001181 TON' │     'N/A'      │     0      │ '0.000309 TON' │    0     │     0      │
+// └─────────┴──────────────┴────────────────┴────────────────┴────────────────┴────────────────┴────────────────┴────────────┴────────────────┴──────────┴────────────┘
