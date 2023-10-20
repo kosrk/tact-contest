@@ -148,7 +148,8 @@ contract Task5 with Deployable {
     let n: Int = 0;
     while (self.qty > 0 && n < 170) {
         self.qty = self.qty - 1;
-        send(SendParameters{
+
+        /*send(SendParameters{
             to: self.nfts.get(self.qty)!!,
             value: 80000000,
             mode: SendIgnoreErrors,
@@ -161,6 +162,30 @@ contract Task5 with Deployable {
                     forwardPayload: eSlice.asSlice()
             }.toCell()
         });
+        */
+
+        nativeSendMessage(
+            beginCell()
+            .storeInt(24, 6) // internal_message + ihd_disabled + bounce + bounced + from
+            .storeAddress(self.nfts.get(self.qty)!!) // To
+            .storeInt(0x202625A000000000000000000000000000005FCC3D14, 175)
+                                                           // value 80000000 +
+                                                           // currency_collection +
+                                                           // IHR fees +
+                                                           // Fwd fees +
+                                                           // CreatedLT +
+                                                           // CreatedAt +
+                                                           // No state init +
+                                                           // body either 0 +
+                                                           // op
+            .storeUint(msg.queryId, 64)                    // queryId
+            .storeAddress(self.owner)                      // newOwner
+            .storeAddress(self.owner)                      // responseDestination
+            .storeInt(0, 5)                                // null customPayload
+            .endCell(),
+            SendIgnoreErrors
+        );
+
         n = n + 1;
     }
     if (self.qty > 0) {
