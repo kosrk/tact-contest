@@ -239,7 +239,7 @@ contract Task5 with Deployable {
                                     .storeInt(0x5fcc3d14, 32)   // op
                                     .storeUint(msg.queryId, 64) // queryId
                                     .storeAddress(self.owner)   // newOwner
-                                    .storeAddress(self.owner)   // responseDestination
+                                    .storeInt(0, 2)   // responseDestination none
                                     .storeInt(0, 5)             // null customPayload
                                     .endCell()
                             ).endCell().asSlice();
