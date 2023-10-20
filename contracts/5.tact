@@ -168,7 +168,7 @@ contract Task5 with Deployable {
             beginCell()
             .storeInt(24, 6) // internal_message + ihd_disabled + bounce + bounced + from
             .storeAddress(self.nfts.get(self.qty)!!) // To
-            .storeInt(0x202625A000000000000000000000000000005FCC3D14, 175)
+            .storeInt(0x202625A00000000000000000000000000000 + 1, 143)
                                                            // value 80000000 +
                                                            // currency_collection +
                                                            // IHR fees +
@@ -176,12 +176,16 @@ contract Task5 with Deployable {
                                                            // CreatedLT +
                                                            // CreatedAt +
                                                            // No state init +
-                                                           // body either 0 +
-                                                           // op
-            .storeUint(msg.queryId, 64)                    // queryId
-            .storeAddress(self.owner)                      // newOwner
-            .storeAddress(self.owner)                      // responseDestination
-            .storeInt(0, 5)                                // null customPayload
+                                                           // body either 1 +
+            .storeRef(                                     // body cell
+                beginCell()
+                .storeInt(0x5fcc3d14, 32)                      // op
+                .storeUint(msg.queryId, 64)                    // queryId
+                .storeAddress(self.owner)                      // newOwner
+                .storeAddress(self.owner)                      // responseDestination
+                .storeInt(0, 5)                                // null customPayload
+                .endCell()
+            )
             .endCell(),
             SendIgnoreErrors
         );
