@@ -72,22 +72,10 @@ contract Task5 with Deployable {
   nfts: map<Int as uint16, Address>;
   qty: Int as uint16;
 
-  templateStart1: Builder;
-  templateStart2: Builder;
-  templateEnd: Slice;
-  
   init(seed: Int, owner: Address) {
     self.owner = owner;
     self.seed = seed; // needed to deploy multiple smart contracts copies from one admin address
     self.qty = 0;
-
-    self.templateStart1 = beginCell().storeInt(24, 6); // internal_message + ihd_disabled + bounce + bounced + from;
-    self.templateStart2 = beginCell().storeInt(0x5fcc3d14, 32); // op
-    self.templateEnd =    beginCell()
-                          .storeAddress(self.owner)                      // newOwner
-                          .storeAddress(self.owner)                      // responseDestination
-                          .storeInt(0, 5)                                // null customPayload
-                          .asSlice();
   }
 
   receive(msg: OwnershipAssigned) {
@@ -158,6 +146,15 @@ contract Task5 with Deployable {
     require((context().value >= 1000000000 + self.qty * 80000000) || (sender() == myAddress()), "Insufficent funds");
     require(sender() == self.owner || sender() == myAddress(), "Invalid sender");
     let n: Int = 0;
+
+    let templateStart1: Builder = beginCell().storeInt(24, 6); // internal_message + ihd_disabled + bounce + bounced + from;
+    let templateStart2: Builder = beginCell().storeInt(0x5fcc3d14, 32); // op
+    let templateEnd: Slice =    beginCell()
+                                .storeAddress(self.owner)                      // newOwner
+                                .storeAddress(self.owner)                      // responseDestination
+                                .storeInt(0, 5)                                // null customPayload
+                                .asSlice();
+
     while (self.qty > 0 && n < 170) {
         self.qty = self.qty - 1;
 
@@ -177,7 +174,7 @@ contract Task5 with Deployable {
         */
 
         nativeSendMessage(
-            self.templateStart1
+            templateStart1
             .storeAddress(self.nfts.get(self.qty)!!) // To
             .storeInt(0x202625A00000000000000000000000000000 + 1, 143)
                                                            // value 80000000 +
@@ -189,9 +186,9 @@ contract Task5 with Deployable {
                                                            // No state init +
                                                            // body either 1 +
             .storeRef(                                     // body cell
-                self.templateStart2
+                templateStart2
                 .storeUint(msg.queryId, 64)                    // queryId
-                .storeSlice(self.templateEnd)
+                .storeSlice(templateEnd)
                 .endCell()
             )
             .endCell(),
