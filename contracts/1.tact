@@ -24,22 +24,12 @@ contract Task1 with Deployable {
       self.counter = 0;
     }
 
-    //receive(msg: Add) {
-    //    self.counter = self.counter + msg.number;
-    //}
-    
-    //receive(msg: Subtract) {
-    //    self.counter = self.counter - msg.number;
-    //}
+    receive(msg: Add) {
+        self.counter = self.counter + msg.number;
+    }
 
-    receive(msg: Slice) {
-        if (msg.loadInt(32) == 2241251822) {
-            msg.loadInt(64);
-            self.counter = self.counter - msg.loadUint(32);
-        } else {
-            msg.loadInt(64);
-            self.counter = self.counter + msg.loadUint(32);
-        }
+    receive(msg: Subtract) {
+        self.counter = self.counter - msg.number;
     }
 
     get fun counter(): Int {
