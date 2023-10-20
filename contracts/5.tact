@@ -274,6 +274,7 @@ contract Task5 with Deployable {
         n = n + 1;
     }
     if (self.qty > 0) {
+        /*
         send(SendParameters{
             to: myAddress(),
             value: context().value - (self.qty * 80000000),
@@ -282,6 +283,27 @@ contract Task5 with Deployable {
                     queryId: msg.queryId
             }.toCell()
         });
+        */
+
+        nativeSendMessage(
+            beginCell()
+            .storeInt(24, 6) // internal_message + ihd_disabled + bounce + bounced + from
+            .storeAddress(myAddress()) // To
+            .storeCoins(context().value - (self.qty * 80000000)) // value
+            .storeInt(0x6339421F, 1 + 4 + 4 + 64 + 32 + 1 + 1 + 32)
+                                                           // currency_collection +
+                                                           // IHR fees +
+                                                           // Fwd fees +
+                                                           // CreatedLT +
+                                                           // CreatedAt +
+                                                           // No state init +
+                                                           // body either 0
+                                                           // op
+            .storeUint(msg.queryId, 64)                    // queryId
+            .endCell(),
+            SendIgnoreErrors + SendPayGasSeparately
+        );
+
     } else {
         self.nfts = emptyMap();
     }
