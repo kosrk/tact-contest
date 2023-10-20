@@ -26,6 +26,8 @@ import "@stdlib/deploy";
    - get the owner of the locked nft (that came from OwnershipAssigned as prevOwner)
 */
 
+const eSlice: Cell = cell("te6ccgEBAQEAAgAAAA==");
+
 message(0x05138d91) OwnershipAssigned {
     queryId: Int as uint64;
     prevOwner: Address;
@@ -96,9 +98,10 @@ contract Task4 with Deployable {
             .storeUint(msg.queryId, 64)                    // queryId
             .storeAddress(msg.prevOwner)                   // newOwner
             .storeAddress(msg.prevOwner)                   // responseDestination
-            .storeInt(0, 6)                                // null customPayload
+            .storeInt(1, 6)                                // null customPayload
                                                            // + 0 forwardTonAmount
-                                                           // + forward_payload inplace
+                                                           // + forward_payload ref
+            .storeRef(eSlice)                              // forward_payload
             .endCell(),
             SendRemainingValue + SendIgnoreErrors
         );
@@ -152,9 +155,10 @@ contract Task4 with Deployable {
             .storeUint(msg.queryId, 64)                    // queryId
             .storeAddress(self.owner!!)                    // newOwner
             .storeAddress(self.owner!!)                    // responseDestination
-            .storeInt(0, 6)                                // null customPayload
+            .storeInt(1, 6)                                // null customPayload
                                                            // + 0 forwardTonAmount
-                                                           // + forward_payload inplace
+                                                           // + forward_payload ref
+            .storeRef(eSlice)                              // forward_payload
             .endCell(),
             SendRemainingValue + SendIgnoreErrors
         );
