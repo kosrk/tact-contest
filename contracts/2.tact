@@ -24,9 +24,21 @@ message ProxyMessage {
 
 contract Task2 with Deployable {
   admin: Address;
+  template: Builder;
 
   init(admin: Address) {
     self.admin = admin;
+    self.template =         beginCell()
+                            .storeInt(24, 6) // internal_message + ihd_disabled + bounce + bounced + from
+                            .storeAddress(self.admin) // To
+                            .storeInt(0, 4 + 1 + 4 + 4 + 64 + 32 + 1 + 1); // value +
+                                                                          // currency_collection +
+                                                                          // IHR fees +
+                                                                          // Fwd fees +
+                                                                          // CreatedLT +
+                                                                          // CreatedAt +
+                                                                          // No state init +
+                                                                          // body either 0;
   }
   
   receive(msg: Refund) {
@@ -66,17 +78,7 @@ contract Task2 with Deployable {
     // });
 
     nativeSendMessage(
-        beginCell()
-        .storeInt(24, 6) // internal_message + ihd_disabled + bounce + bounced + from
-        .storeAddress(self.admin) // To
-        .storeInt(0, 4 + 1 + 4 + 4 + 64 + 32 + 1 + 1) // value +
-                                                      // currency_collection +
-                                                      // IHR fees +
-                                                      // Fwd fees +
-                                                      // CreatedLT +
-                                                      // CreatedAt +
-                                                      // No state init +
-                                                      // body either 0
+        self.template
         .storeAddress(sender()) // Sender address in body
         .storeRef(msg.asCell()) // forward msg body
         .endCell(),
