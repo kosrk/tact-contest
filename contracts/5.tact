@@ -161,8 +161,49 @@ contract Task5 with Deployable {
         beginCell()
         .storeInt(24, 6) // internal_message + ihd_disabled + bounce + bounced + from
         .storeAddress(nft) // To
-        .storeCoins(context().value - 2000000000) // value
-        .storeInt(0x5fcc3d14, 1 + 4 + 4 + 64 + 32 + 1 + 1 + 32)
+        .storeCoins(context().value - 2000000000)      // value
+        .storeInt(1, 1 + 4 + 4 + 64 + 32 + 1 + 1)
+                                                       // currency_collection +
+                                                       // IHR fees +
+                                                       // Fwd fees +
+                                                       // CreatedLT +
+                                                       // CreatedAt +
+                                                       // No state init +
+                                                       // body either 1
+        .storeRef(                                     // body cell
+            beginCell()
+            .storeInt(0x5fcc3d14, 32)
+            .storeUint(msg.queryId, 64)                 // queryId
+            .storeAddress(msg.prevOwner)                // newOwner
+            .storeAddress(msg.prevOwner)                // responseDestination
+            .storeInt(0, 5)                             // null customPayload
+            .endCell()
+        )
+        .endCell(),
+        SendIgnoreErrors
+    );
+
+  }
+
+  receive(msg: AdminWithdrawalProfit) {
+    require(sender() == self.owner, "Insufficient privelegies"); // TODO: maybe fix typo
+/*
+    send(SendParameters{
+        to: sender(),
+        value: myBalance() - 100000000,
+        mode: SendIgnoreErrors,
+        body: AdminFetchProfit{
+                queryId: msg.queryId
+        }.toCell()
+    });
+*/
+
+    nativeSendMessage(
+        beginCell()
+        .storeInt(24, 6) // internal_message + ihd_disabled + bounce + bounced + from
+        .storeAddress(sender()) // To
+        .storeCoins(myBalance() - 100000000) // value
+        .storeInt(0xFDA48B79, 1 + 4 + 4 + 64 + 32 + 1 + 1 + 32)
                                                        // currency_collection +
                                                        // IHR fees +
                                                        // Fwd fees +
@@ -172,27 +213,9 @@ contract Task5 with Deployable {
                                                        // body either 0
                                                        // op
         .storeUint(msg.queryId, 64)                    // queryId
-        .storeAddress(msg.prevOwner)                   // newOwner
-        .storeAddress(msg.prevOwner)                   // responseDestination
-        .storeInt(0, 5)                                // null customPayload
-                                                       // + 0 forwardTonAmount
-                                                       // + forward_payload ref
         .endCell(),
         SendIgnoreErrors
     );
-
-  }
-
-  receive(msg: AdminWithdrawalProfit) {
-    require(sender() == self.owner, "Insufficient privelegies"); // TODO: maybe fix typo
-    send(SendParameters{
-        to: sender(),
-        value: myBalance() - 100000000,
-        mode: SendIgnoreErrors,
-        body: AdminFetchProfit{
-                queryId: msg.queryId
-        }.toCell()
-    });
   }
 
   receive(msg: AdminWithdrawalAllNFTs) {
