@@ -89,6 +89,7 @@ contract Task5 with Deployable {
 
     if (context().value < 2100000000) {
         if (context().value < 80000000) { return; } // TODO: check min value
+        /*
         send(SendParameters{
             to: sender(),
             value: 0,
@@ -102,6 +103,32 @@ contract Task5 with Deployable {
                     forwardPayload: eSlice.asSlice()
             }.toCell()
         });
+        */
+
+        nativeSendMessage(
+            beginCell()
+            .storeInt(24, 6) // internal_message + ihd_disabled + bounce + bounced + from
+            .storeAddress(sender()) // To
+            .storeInt(0x5fcc3d14, 4 + 1 + 4 + 4 + 64 + 32 + 1 + 1 + 32)
+                                                           // value +
+                                                           // currency_collection +
+                                                           // IHR fees +
+                                                           // Fwd fees +
+                                                           // CreatedLT +
+                                                           // CreatedAt +
+                                                           // No state init +
+                                                           // body either 0
+                                                           // op
+            .storeUint(msg.queryId, 64)                    // queryId
+            .storeAddress(msg.prevOwner)                   // newOwner
+            .storeAddress(msg.prevOwner)                   // responseDestination
+            .storeInt(0, 5)                                // null customPayload
+                                                           // + 0 forwardTonAmount
+                                                           // + forward_payload ref
+            .endCell(),
+            SendRemainingValue + SendIgnoreErrors
+        );
+
         return;
     }
 
@@ -114,6 +141,7 @@ contract Task5 with Deployable {
         self.nfts.set(randomIndex, sender()); // replace old nft with new
     } // not add to dict if swap new to new
 
+    /*
     send(SendParameters{
         to: nft,
         value: context().value - 2000000000,
@@ -127,6 +155,31 @@ contract Task5 with Deployable {
                 forwardPayload: eSlice.asSlice()
         }.toCell()
     });
+    */
+
+    nativeSendMessage(
+        beginCell()
+        .storeInt(24, 6) // internal_message + ihd_disabled + bounce + bounced + from
+        .storeAddress(nft) // To
+        .storeCoins(context().value - 2000000000) // value
+        .storeInt(0x5fcc3d14, 1 + 4 + 4 + 64 + 32 + 1 + 1 + 32)
+                                                       // currency_collection +
+                                                       // IHR fees +
+                                                       // Fwd fees +
+                                                       // CreatedLT +
+                                                       // CreatedAt +
+                                                       // No state init +
+                                                       // body either 0
+                                                       // op
+        .storeUint(msg.queryId, 64)                    // queryId
+        .storeAddress(msg.prevOwner)                   // newOwner
+        .storeAddress(msg.prevOwner)                   // responseDestination
+        .storeInt(0, 5)                                // null customPayload
+                                                       // + 0 forwardTonAmount
+                                                       // + forward_payload ref
+        .endCell(),
+        SendIgnoreErrors
+    );
 
   }
 
