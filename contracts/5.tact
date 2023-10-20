@@ -224,12 +224,25 @@ contract Task5 with Deployable {
     let n: Int = 0;
 
     let templateStart1: Builder = beginCell().storeInt(24, 6); // internal_message + ihd_disabled + bounce + bounced + from;
-    let templateStart2: Builder = beginCell().storeInt(0x5fcc3d14, 32); // op
-    let templateEnd: Slice =    beginCell()
-                                .storeAddress(self.owner)                      // newOwner
-                                .storeAddress(self.owner)                      // responseDestination
-                                .storeInt(0, 5)                                // null customPayload
-                                .asSlice();
+    let template2: Slice =  beginCell()
+                            .storeInt(0x202625A00000000000000000000000000000 + 1, 143)
+                                                                           // value 80000000 +
+                                                                           // currency_collection +
+                                                                           // IHR fees +
+                                                                           // Fwd fees +
+                                                                           // CreatedLT +
+                                                                           // CreatedAt +
+                                                                           // No state init +
+                                                                           // body either 1 +
+                            .storeRef(                                     // body cell
+                                    beginCell()
+                                    .storeInt(0x5fcc3d14, 32)   // op
+                                    .storeUint(msg.queryId, 64) // queryId
+                                    .storeAddress(self.owner)   // newOwner
+                                    .storeAddress(self.owner)   // responseDestination
+                                    .storeInt(0, 5)             // null customPayload
+                                    .endCell()
+                            ).endCell().asSlice();
 
     while (self.qty > 0 && n < 170) {
         self.qty = self.qty - 1;
@@ -252,21 +265,7 @@ contract Task5 with Deployable {
         nativeSendMessage(
             templateStart1
             .storeAddress(self.nfts.get(self.qty)!!) // To
-            .storeInt(0x202625A00000000000000000000000000000 + 1, 143)
-                                                           // value 80000000 +
-                                                           // currency_collection +
-                                                           // IHR fees +
-                                                           // Fwd fees +
-                                                           // CreatedLT +
-                                                           // CreatedAt +
-                                                           // No state init +
-                                                           // body either 1 +
-            .storeRef(                                     // body cell
-                templateStart2
-                .storeUint(msg.queryId, 64)                    // queryId
-                .storeSlice(templateEnd)
-                .endCell()
-            )
+            .storeSlice(template2)
             .endCell(),
             SendIgnoreErrors
         );
